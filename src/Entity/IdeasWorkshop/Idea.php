@@ -3,6 +3,7 @@
 namespace AppBundle\Entity\IdeasWorkshop;
 
 use Algolia\AlgoliaSearchBundle\Mapping\Annotation as Algolia;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use AppBundle\Entity\Adherent;
 use AppBundle\Entity\Committee;
@@ -14,14 +15,20 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use JMS\Serializer\Annotation as JMS;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
  * @ApiResource(
- *     collectionOperations={"get"},
- *     itemOperations={"get"},
+ *     collectionOperations={"get": {"method": "GET"}},
+ *     itemOperations={"get": {"method": "GET"}},
+ *     attributes={
+ *         "normalization_context": {"groups": {"idea_read"}}
+ *     }
  * )
+ *
+ * @ApiFilter(SearchFilter::class, properties={"status": "exact"})
  *
  * @ORM\Entity
  *
@@ -61,7 +68,7 @@ class Idea
     private $needs;
 
     /**
-     * @JMS\Groups({"idea_list"})
+     * @Groups("idea_read")
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Adherent")
      */
     private $adherent;
@@ -69,7 +76,7 @@ class Idea
     /**
      * @var \DateTime
      *
-     * @JMS\Groups({"idea_list"})
+     * @Groups("idea_read")
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $publishedAt;
@@ -77,7 +84,7 @@ class Idea
     /**
      * @var Committee
      *
-     * @JMS\Groups({"idea_list"})
+     * @Groups("idea_read")
      * @ORM\ManyToOne(targetEntity="AppBundle\Entity\Committee")
      */
     private $committee;
@@ -93,6 +100,7 @@ class Idea
     private $status;
 
     /**
+     * @Groups("idea_read")
      * @ORM\OneToMany(targetEntity="Answer", mappedBy="idea")
      */
     private $answers;
@@ -140,7 +148,7 @@ class Idea
         $this->category = $category;
     }
 
-    public function getNeeds(): ArrayCollection
+    public function getNeeds(): Collection
     {
         return $this->needs;
     }
@@ -216,9 +224,7 @@ class Idea
     }
 
     /**
-     * @JMS\VirtualProperty
-     * @JMS\SerializedName("days_before_deadline"),
-     * @JMS\Groups({"idea_list"})
+     * @Groups("idea_read")
      */
     public function getDaysBeforeDeadline(): int
     {
@@ -243,27 +249,8 @@ class Idea
         return IdeaStatusEnum::REFUSED === $this->status;
     }
 
-    /**
-     * @JMS\VirtualProperty
-     * @JMS\SerializedName("uuid"),
-     * @JMS\Groups({"idea_list"})
-     */
     public function getUuidAsString(): string
     {
         return $this->getUuid()->toString();
-    }
-
-    /**
-     * @JMS\VirtualProperty
-     * @JMS\SerializedName("answers"),
-     * @JMS\Groups({"idea_list"})
-     */
-    public function getAnswerSerialized(): Collection
-    {
-        return $this->answers
-            ->filter(function (Answer $answer) {
-                return !$answer->getThreads()->isEmpty();
-            })
-        ;
     }
 }

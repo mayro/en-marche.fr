@@ -31,7 +31,7 @@ class LoadIdeaData extends AbstractFixture implements DependentFixtureInterface
             $category,
             $theme,
             $committee,
-            new \DateTime('2018-12-01 10:00:00'),
+            new \DateTime('2018-12-06 14:56:00'),
             IdeaStatusEnum::PUBLISHED
         );
         $ideaMakePeace->addNeed($need);
@@ -45,7 +45,7 @@ class LoadIdeaData extends AbstractFixture implements DependentFixtureInterface
             $category,
             $theme,
             $committee,
-            new \DateTime('2018-12-02 10:00:00')
+            new \DateTime('2018-12-05 14:56:00')
         );
         $this->addReference('idea-help-ecology', $ideaHelpEcology);
 
@@ -57,7 +57,7 @@ class LoadIdeaData extends AbstractFixture implements DependentFixtureInterface
             $category,
             $theme,
             $committee,
-            new \DateTime('2018-12-03 10:00:00')
+            new \DateTime('2018-12-05 15:56:00')
         );
         $this->addReference('idea-help-people', $ideaHelpPeople);
 
